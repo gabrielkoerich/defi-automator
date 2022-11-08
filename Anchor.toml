@@ -1,0 +1,19 @@
+[programs.localnet]
+automator = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+
+[registry]
+url = "https://anchor.projectserum.com"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha --bail -p ./tsconfig.json -t 1000000 tests/*.test.ts"
+
+[[test.genesis]]
+address = "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+program = "tests/whirlpools/whirlpool.so"
+
+[test]
+startup_wait = 100000

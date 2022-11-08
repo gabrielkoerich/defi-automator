@@ -1,0 +1,11 @@
+.anchor
+.env
+.DS_Store
+.nyc_output
+*.rs.bk
+*.tsbuildinfo
+/coverage
+node_modules
+target
+test-ledger
+yarn-error.log

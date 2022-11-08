@@ -1,0 +1,9 @@
+.anchor
+.next
+.nyc_output
+coverage
+target
+node_modules
+packages/sdk/idl
+/test-ledger
+tests/whirlpools

@@ -1,0 +1,23 @@
+portfolios:
+  - chain: solana
+    protocol: whirlpools
+    positions:
+      # stSOL/BTC
+      - pool: J7qn7AvZ4QK9qT6BikVBKA3hUp89Lg9UkqJmXZQEjRxq
+        cron: '*/30 * * * *'
+        strategy: one-tick
+        distribution: 30
+        swap: false
+
+      # USDH/mSOL
+      - pool: 4eJ1jCPysCrEH53VUAxgNT8BMccXsgHX1nX4FxXAUVWy
+        cron: '*/30 * * * *'
+        strategy: one-tick
+        distribution: 20
+        swap: false
+
+      # mSOL/whETH
+      - pool: 6jZQFLhSAzTYfo33MSQYvwKvZYwxat8kUa29Mz63oHN9
+        strategy: one-tick
+        distribution: 50
+        swap: false
