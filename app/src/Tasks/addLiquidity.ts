@@ -17,13 +17,6 @@ export const addLiquidity = async (manager: PositionManager) => {
 
   const strategy = await manager.getStrategy(true);
 
-  const { tickLowerIndex, tickUpperIndex, quote } =
-    await getStrategyIncreaseLiquidityQuote(
-      strategy,
-      manager.provider,
-      pool.getData()
-    );
-
   if (model.address) {
     console.log('Position exists.', {
       address: model.address,
@@ -31,13 +24,22 @@ export const addLiquidity = async (manager: PositionManager) => {
 
     const position = await client.getPosition(model.address);
 
+    const { quote } = await getStrategyIncreaseLiquidityQuote(
+      strategy,
+      manager.provider,
+      pool.getData(),
+      position.getData()
+    );
+
     if (quote.liquidityAmount.eq(new BN(0))) {
       return;
     }
 
     console.log('Increasing liquidity', {
-      tokenMaxA: quote.tokenMaxA.toString(),
-      tokenMaxB: quote.tokenMaxB.toString(),
+      tokenEstA: quote.tokenEstA.toString(),
+      tokenEstB: quote.tokenEstB.toString(),
+      // tokenMaxA: quote.tokenMaxA.toString(),
+      // tokenMaxB: quote.tokenMaxB.toString(),
       amount: quote.liquidityAmount.toNumber(),
     });
 
@@ -59,6 +61,13 @@ export const addLiquidity = async (manager: PositionManager) => {
 
     return;
   }
+
+  const { tickLowerIndex, tickUpperIndex, quote } =
+    await getStrategyIncreaseLiquidityQuote(
+      strategy,
+      manager.provider,
+      pool.getData()
+    );
 
   // Mints a position and insert liquidity (2 instructions)
   const { positionMint, tx } = await pool.openPosition(

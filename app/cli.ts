@@ -78,7 +78,7 @@ const actions = {
   work: async (provider: AnchorProvider, config, args) => {
     await run(provider, config, args);
 
-    const delay = 15 * 60 * 1000;
+    const delay = 10 * 60 * 1000;
 
     return setInterval(async () => run(provider, config, args), delay);
   },
