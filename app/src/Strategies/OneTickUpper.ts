@@ -17,10 +17,18 @@ export class OneTickUpper implements Strategy {
     tickLowerIndex: number;
     tickUpperIndex: number;
   } {
-    const tickLowerIndex = TickUtil.getNextInitializableTickIndex(
+    const initializableTick = TickUtil.getInitializableTickIndex(
       whirlpool.tickCurrentIndex,
       whirlpool.tickSpacing
     );
+
+    const tickLowerIndex =
+      initializableTick > whirlpool.tickCurrentIndex
+        ? initializableTick
+        : TickUtil.getNextInitializableTickIndex(
+            whirlpool.tickCurrentIndex,
+            whirlpool.tickSpacing
+          );
 
     const tickUpperIndex = TickUtil.getNextInitializableTickIndex(
       tickLowerIndex + 35 * whirlpool.tickSpacing,

@@ -86,6 +86,7 @@ export const addLiquidity = async (manager: PositionManager) => {
 
   console.log(`Position opened.`, {
     address: model.address,
+    mint: model.mint,
   });
 };
 

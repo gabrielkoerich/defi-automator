@@ -17,34 +17,27 @@ export class OneTickLower implements Strategy {
     tickLowerIndex: number;
     tickUpperIndex: number;
   } {
-    const tickUpperIndex = TickUtil.getPrevInitializableTickIndex(
+    const initializableTick = TickUtil.getInitializableTickIndex(
       whirlpool.tickCurrentIndex,
       whirlpool.tickSpacing
     );
+
+    const tickUpperIndex =
+      initializableTick < whirlpool.tickCurrentIndex
+        ? initializableTick
+        : TickUtil.getPrevInitializableTickIndex(
+            whirlpool.tickCurrentIndex,
+            whirlpool.tickSpacing
+          );
 
     const tickLowerIndex = TickUtil.getPrevInitializableTickIndex(
       tickUpperIndex - 35 * whirlpool.tickSpacing,
       whirlpool.tickSpacing
     );
 
-    // const priceLower = PriceMath.sqrtPriceX64ToPrice(
-    //   PriceMath.tickIndexToSqrtPriceX64(tickLowerIndex),
-    //   9,
-    //   6
-    // ).toNumber();
-
-    // const priceUpper = PriceMath.sqrtPriceX64ToPrice(
-    //   PriceMath.tickIndexToSqrtPriceX64(tickUpperIndex),
-    //   9,
-    //   6
-    // ).toNumber();
-
-    // console.log({calcPriceLower, calcPriceUpper});
-
     return {
       tickLowerIndex,
       tickUpperIndex,
-      // inputTokenMint: poolData.tokenMintB,
     };
   }
 

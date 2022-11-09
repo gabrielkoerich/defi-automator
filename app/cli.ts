@@ -96,14 +96,12 @@ const runner = async (provider: AnchorProvider, config, args: string[]) => {
     address: provider.wallet.publicKey.toString(),
   });
 
-  const response = await action(provider, config, ...args);
+  const r = await action(provider, config, ...args);
 
-  if (response && !response._idleTimeout) {
-    console.log(`Closing db connection`);
-
+  if (!r?._idleTimeout) {
     db.connection.close();
-
-    console.log(util.inspect(response, { depth: null, colors: true }));
+  } else {
+    console.log(util.inspect(r, { depth: null, colors: true }));
   }
 };
 

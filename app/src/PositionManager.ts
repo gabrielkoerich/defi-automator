@@ -2,6 +2,7 @@ import { AnchorProvider, BN } from '@project-serum/anchor';
 import type { Document } from 'mongoose';
 import {
   buildWhirlpoolClient,
+  PDAUtil,
   Whirlpool,
   WhirlpoolContext,
 } from '@orca-so/whirlpools-sdk';
@@ -36,8 +37,10 @@ export class PositionManager {
     this.config = config;
   }
 
-  public async getModel(): Promise<Document & PositionInterface> {
-    if (this.model) {
+  public async getModel(
+    reload: boolean = false
+  ): Promise<Document & PositionInterface> {
+    if (this.model && !reload) {
       return this.model;
     }
 
@@ -93,10 +96,21 @@ export class PositionManager {
   }
 
   public async getPosition() {
-    const model = await this.getModel();
+    const model = await this.getModel(true);
 
-    if (!model.address) {
+    if (!model.address && !model.mint) {
       return null;
+    }
+
+    if (model.mint) {
+      const positionPda = PDAUtil.getPosition(
+        WHIRLPOOL_PROGRAM_ID,
+        new PublicKey(model.mint)
+      );
+
+      model.address = positionPda.publicKey.toString();
+
+      await model.save();
     }
 
     const { client } = this.getProtocol();

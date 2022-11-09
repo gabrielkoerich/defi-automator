@@ -5,6 +5,7 @@ export interface PositionInterface {
   chain: string;
   protocol: string;
   pool: string;
+  mint?: string;
   address?: string;
   strategy?: string;
   transactions?: TransactionInterface[];
@@ -29,6 +30,9 @@ export const Position = model<PositionInterface>(
         type: String,
         required: true,
         unique: true,
+      },
+      mint: {
+        type: String,
       },
       address: {
         type: String,
