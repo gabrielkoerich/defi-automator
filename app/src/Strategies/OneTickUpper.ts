@@ -23,7 +23,7 @@ export class OneTickUpper implements Strategy {
     );
 
     const tickUpperIndex = TickUtil.getNextInitializableTickIndex(
-      tickLowerIndex + 25 * whirlpool.tickSpacing, // -15 ticks for now
+      tickLowerIndex + 35 * whirlpool.tickSpacing,
       whirlpool.tickSpacing
     );
 

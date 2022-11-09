@@ -1,27 +1,23 @@
+import { Percentage } from '@orca-so/common-sdk';
 import { DecreaseLiquidityInput } from '@orca-so/whirlpools-sdk';
 import { BN } from '@project-serum/anchor';
-import { Percentage } from '@orca-so/common-sdk';
 import { PositionManager } from '..';
 
 export const closePosition = async (manager: PositionManager) => {
-  const model = await manager.getModel();
+  const position = await manager.getPosition();
 
-  if (!model.address) {
+  if (!position) {
     console.log('No position address.');
 
     return;
   }
 
-  const { client } = manager.getProtocol();
-
-  const whirlpool = await client.getPool(model.pool);
-  const position = await client.getPosition(model.address);
-
+  const pool = await manager.getPool();
   const strategy = await manager.getStrategy();
 
   if (
     manager.config.distribution > 0 &&
-    !strategy.shouldClose(whirlpool.getData(), position.getData())
+    !strategy.shouldClose(pool.getData(), position.getData())
   ) {
     return;
   }
@@ -38,7 +34,9 @@ export const closePosition = async (manager: PositionManager) => {
     await decreaseTx.buildAndExecute();
   }
 
-  const closeTx = await whirlpool.closePosition(
+  const model = await manager.getModel();
+
+  const closeTx = await pool.closePosition(
     model.address,
     Percentage.fromFraction(1, 1000)
   );
@@ -49,8 +47,6 @@ export const closePosition = async (manager: PositionManager) => {
   model.strategy = null;
 
   await model.save();
-
-  console.log(`Position closed.`);
 };
 
 export default closePosition;

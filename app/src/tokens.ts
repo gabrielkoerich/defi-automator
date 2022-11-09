@@ -17,8 +17,6 @@ type JupTokenInfo = {
 
 export const getTokens = async (): Promise<JupTokenInfo[]> => {
   if (global.tokens.length === 0) {
-    console.log(`Fetching tokens from Jupiter`);
-
     global.tokens = (
       await axios.get(`https://cache.jup.ag/tokens`)
     ).data.filter((token) => token.chainId === 101);

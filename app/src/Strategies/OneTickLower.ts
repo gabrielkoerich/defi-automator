@@ -23,7 +23,7 @@ export class OneTickLower implements Strategy {
     );
 
     const tickLowerIndex = TickUtil.getPrevInitializableTickIndex(
-      tickUpperIndex - 25 * whirlpool.tickSpacing, // -15 ticks for now
+      tickUpperIndex - 35 * whirlpool.tickSpacing,
       whirlpool.tickSpacing
     );
 

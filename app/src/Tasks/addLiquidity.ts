@@ -5,29 +5,21 @@ import { PositionManager } from '..';
 import { getStrategyIncreaseLiquidityQuote } from '../Strategies';
 
 export const addLiquidity = async (manager: PositionManager) => {
-  const model = await manager.getModel();
-
   if (manager.config.distribution === 0) {
     return;
   }
 
-  const { client } = manager.getProtocol();
-
-  const pool = await client.getPool(model.pool);
+  const pool = await manager.getPool();
+  const position = await manager.getPosition();
 
   const strategy = await manager.getStrategy(true);
 
-  if (model.address) {
-    console.log('Position exists.', {
-      address: model.address,
-    });
-
-    const position = await client.getPosition(model.address);
-
+  if (position) {
     const { quote } = await getStrategyIncreaseLiquidityQuote(
       strategy,
       manager.provider,
       pool.getData(),
+      // manager.config.distribution,
       position.getData()
     );
 
@@ -38,8 +30,6 @@ export const addLiquidity = async (manager: PositionManager) => {
     console.log('Increasing liquidity', {
       tokenEstA: quote.tokenEstA.toString(),
       tokenEstB: quote.tokenEstB.toString(),
-      // tokenMaxA: quote.tokenMaxA.toString(),
-      // tokenMaxB: quote.tokenMaxB.toString(),
       amount: quote.liquidityAmount.toNumber(),
     });
 
@@ -52,12 +42,8 @@ export const addLiquidity = async (manager: PositionManager) => {
     try {
       await increaseTx.buildAndExecute();
     } catch (e) {
-      console.log(`Error: Couldn't add liquidity, Position needs swaps.`);
-
-      return;
+      console.log(`Error: Couldn't add liquidity, position needs swaps.`);
     }
-
-    console.log('Liquidity increased.');
 
     return;
   }
@@ -67,9 +53,19 @@ export const addLiquidity = async (manager: PositionManager) => {
       strategy,
       manager.provider,
       pool.getData()
+      // manager.config.distribution,
     );
 
-  // Mints a position and insert liquidity (2 instructions)
+  if (quote.liquidityAmount.eq(new BN(0))) {
+    return;
+  }
+
+  console.log('Opening position', {
+    tokenEstA: quote.tokenEstA.toString(),
+    tokenEstB: quote.tokenEstB.toString(),
+    amount: quote.liquidityAmount.toNumber(),
+  });
+
   const { positionMint, tx } = await pool.openPosition(
     tickLowerIndex,
     tickUpperIndex,
@@ -80,7 +76,10 @@ export const addLiquidity = async (manager: PositionManager) => {
 
   await tx.buildAndExecute();
 
+  const model = await manager.getModel();
+
   model.strategy = strategy.name;
+  model.mint = positionMint.toString();
   model.address = positionPda.publicKey.toString();
 
   await model.save();

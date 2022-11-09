@@ -62,34 +62,6 @@ export class PositionManager {
     return this.model;
   }
 
-  async getTokenAccountForMint(mint: PublicKey) {
-    const tokenAccount = await Token.getAssociatedTokenAddress(
-      ASSOCIATED_TOKEN_PROGRAM_ID,
-      TOKEN_PROGRAM_ID,
-      mint,
-      this.provider.wallet.publicKey
-    );
-
-    const info = await this.provider.connection.getAccountInfo(tokenAccount);
-
-    if (!info) {
-      await this.provider.sendAndConfirm(
-        new Transaction().add(
-          Token.createAssociatedTokenAccountInstruction(
-            ASSOCIATED_TOKEN_PROGRAM_ID,
-            TOKEN_PROGRAM_ID,
-            mint,
-            tokenAccount,
-            this.provider.wallet.publicKey,
-            this.provider.wallet.publicKey
-          )
-        )
-      );
-    }
-
-    return tokenAccount;
-  }
-
   public async getStrategy(reload: boolean = false): Promise<Strategy> {
     if (!this.strategy || reload) {
       this.strategy = await getStrategy(this);
@@ -120,6 +92,62 @@ export class PositionManager {
     return this.pool;
   }
 
+  public async getPosition() {
+    const model = await this.getModel();
+
+    if (!model.address) {
+      return null;
+    }
+
+    const { client } = this.getProtocol();
+
+    try {
+      return await client.getPosition(model.address);
+    } catch (e) {
+      if (
+        !e.message.includes(
+          `Unable to fetch Position at address at ${model.address}`
+        )
+      ) {
+        throw e;
+      }
+
+      model.address = null;
+
+      await model.save();
+
+      return null;
+    }
+  }
+
+  async getTokenAccountForMint(mint: PublicKey, create: boolean = true) {
+    const tokenAccount = await Token.getAssociatedTokenAddress(
+      ASSOCIATED_TOKEN_PROGRAM_ID,
+      TOKEN_PROGRAM_ID,
+      mint,
+      this.provider.wallet.publicKey
+    );
+
+    const info = await this.provider.connection.getAccountInfo(tokenAccount);
+
+    if (!info && create) {
+      await this.provider.sendAndConfirm(
+        new Transaction().add(
+          Token.createAssociatedTokenAccountInstruction(
+            ASSOCIATED_TOKEN_PROGRAM_ID,
+            TOKEN_PROGRAM_ID,
+            mint,
+            tokenAccount,
+            this.provider.wallet.publicKey,
+            this.provider.wallet.publicKey
+          )
+        )
+      );
+    }
+
+    return tokenAccount;
+  }
+
   public async getTokenBalance(
     tokenAccount: PublicKey,
     uiAmount: boolean = false
@@ -131,6 +159,30 @@ export class PositionManager {
     return uiAmount
       ? new BN(value.amount).div(new BN(10 ** value.decimals))
       : new BN(value.amount);
+  }
+
+  async closeTokenAccount(tokenAccount: PublicKey) {
+    const balance = await this.getTokenBalance(tokenAccount);
+
+    console.log(`Closing token account ${tokenAccount.toString()}`);
+
+    if (!balance.eq(new BN(0))) {
+      throw new Error(
+        `Account ${tokenAccount.toString} has balance: ${balance.toNumber}`
+      );
+    }
+
+    return this.provider.sendAndConfirm(
+      new Transaction().add(
+        Token.createCloseAccountInstruction(
+          TOKEN_PROGRAM_ID,
+          tokenAccount,
+          this.provider.wallet.publicKey,
+          this.provider.wallet.publicKey,
+          []
+        )
+      )
+    );
   }
 
   public async getTokenBalances(uiAmount: boolean = false) {
@@ -167,15 +219,12 @@ export class PositionManager {
 
   // TODO: PositionState interface
   public async getState(): Promise<any> {
-    const { client } = this.getProtocol();
-
     const whirlpool = await this.getPool();
+    const position = await this.getPosition();
 
-    if (!this.model.address) {
+    if (!position) {
       return null;
     }
-
-    const position = await client.getPosition(this.model.address);
 
     const state = await getWhirlpoolPositionState(
       whirlpool.getData(),
@@ -188,7 +237,7 @@ export class PositionManager {
       tokens: (await this.getTokenSymbols()).join('/'),
       protocol: this.protocol,
       strategy: this.model.strategy || this.config.strategy,
-      pool: this.config.pool,
+      // pool: this.config.pool,
       ...state,
     };
   }

@@ -39,13 +39,10 @@ export const swapCollectedTokens = async (manager: PositionManager) => {
     return;
   }
 
-  const { ctx, client } = manager.getProtocol();
+  const { client } = manager.getProtocol();
 
   const whirlpool = await client.getPool(model.pool);
   const whirlpoolData = whirlpool.getData();
-
-  const position = await client.getPosition(model.address);
-  const positionData = position.getData();
 
   const strategy = await manager.getStrategy();
 
@@ -104,28 +101,20 @@ export const swapCollectedTokens = async (manager: PositionManager) => {
         manager.provider.wallet.publicKey.toString()
       );
 
-    // Execute the transactions
     try {
       for (const serializedTransaction of [
         setupTransaction,
         swapTransaction,
         cleanupTransaction,
       ].filter(Boolean)) {
-        // get transaction object from serialized transaction
         const tx = Transaction.from(
           Buffer.from(serializedTransaction, 'base64')
         );
-        // perform the swap
-        const txid = await manager.provider.sendAndConfirm(tx, [], {
-          // skipPreflight: true,
-        });
 
-        console.log(`Reward swapped.`, {
-          tx: `https://explorer.solana.com/tx/${txid}`,
-        });
+        await manager.provider.sendAndConfirm(tx);
       }
     } catch (e) {
-      console.error(e);
+      console.log(`Error: Couldn't swap.`);
     }
   }
 };

@@ -111,8 +111,6 @@ export const collectFeesAndRewards = async (manager: PositionManager) => {
       new Transaction().add(...feesIx).add(...rewardIx)
     );
   }
-
-  console.log(`Fees & Rewards collected.`);
 };
 
 export default collectFeesAndRewards;

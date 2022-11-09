@@ -30,8 +30,6 @@ console.log = function (...logs) {
 dotenv.config();
 
 const run = async (provider: AnchorProvider, config, args) => {
-  console.log(`Running automator`, new Date());
-
   const positions = config.portfolios
     .map((portfolio) =>
       portfolio.positions.map((positionConfig) => ({
@@ -49,7 +47,6 @@ const run = async (provider: AnchorProvider, config, args) => {
     );
 
     const tasks = [
-      Tasks.addLiquidity,
       Tasks.collectFeesAndRewards,
       Tasks.swapCollectedTokens,
       Tasks.closePosition,
@@ -62,7 +59,11 @@ const run = async (provider: AnchorProvider, config, args) => {
         tokens: await manager.getTokenSymbols(),
       });
 
-      await task(manager);
+      try {
+        await task(manager);
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     const state = await manager.getState();
@@ -78,7 +79,7 @@ const actions = {
   work: async (provider: AnchorProvider, config, args) => {
     await run(provider, config, args);
 
-    const delay = 10 * 60 * 1000;
+    const delay = 15 * 60 * 1000;
 
     return setInterval(async () => run(provider, config, args), delay);
   },

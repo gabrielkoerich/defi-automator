@@ -162,18 +162,25 @@ export const getWhirlpoolPositionState = async (
     (tokenA.amount * priceTokenA + tokenB.amount * priceTokenB).toFixed(2)
   );
 
+  const inRange = isWhirlpoolPositionInRange(whirlpool, position);
+
+  // const range = `${position.tickLowerIndex} (${prices.lower.toFixed(uiFixedDecimals)}) <> ${position.tickUpperIndex} (${prices.upper.toFixed(uiFixedDecimals)})`;
+  // const current = `${whirlpool.tickCurrentIndex} (${prices.current.toFixed(uiFixedDecimals)}) (${inRange ? 'in range' : 'out of range'})`;
+
   return {
-    tokenMintA: whirlpool.tokenMintA.toString(),
-    tokenMintB: whirlpool.tokenMintB.toString(),
-    tickSpacing: whirlpool.tickSpacing,
-    tickCurrent: whirlpool.tickCurrentIndex,
+    // tokenMintA: whirlpool.tokenMintA.toString(),
+    // tokenMintB: whirlpool.tokenMintB.toString(),
+    // tickSpacing: whirlpool.tickSpacing,
+    tick: whirlpool.tickCurrentIndex,
+    // range,
+    // current,
     tickRange: `${position.tickLowerIndex} <> ${position.tickUpperIndex}`,
-    currentPrice: Number(prices.current.toFixed(uiFixedDecimals)),
+    price: Number(prices.current.toFixed(uiFixedDecimals)),
     priceRange: `${prices.lower.toFixed(
       uiFixedDecimals
     )} <> ${prices.upper.toFixed(uiFixedDecimals)}`,
-    inRange: isWhirlpoolPositionInRange(whirlpool, position),
-    leverage: getPositionLeverage(prices.lower, prices.upper),
+    inRange,
+    // leverage: getPositionLeverage(prices.lower, prices.upper),
     tokensA,
     tokensB,
     usdValue,

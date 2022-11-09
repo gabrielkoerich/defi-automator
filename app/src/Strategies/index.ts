@@ -80,6 +80,7 @@ export const getStrategyIncreaseLiquidityQuote = async (
   strategy: Strategy,
   provider: AnchorProvider,
   whirlpool: WhirlpoolData,
+  // distribution: number = 100,
   position?: PositionData
 ): Promise<{
   tickLowerIndex: number;
@@ -88,7 +89,8 @@ export const getStrategyIncreaseLiquidityQuote = async (
   inputTokenAmount: BN;
   quote: IncreaseLiquidityQuote;
 }> => {
-  const { tickLowerIndex, tickUpperIndex } = position || strategy.getInitTicks(whirlpool);
+  const { tickLowerIndex, tickUpperIndex } =
+    position || strategy.getInitTicks(whirlpool);
 
   const { inputTokenMint, inputTokenAmount } =
     await strategy.getIncreaseLiquidityParams(provider, whirlpool);
