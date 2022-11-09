@@ -99,6 +99,12 @@ export class PositionManager {
     const model = await this.getModel(true);
 
     if (!model.address && !model.mint) {
+      model.address = null;
+      model.mint = null;
+      model.strategy = null;
+
+      await model.save();
+
       return null;
     }
 
@@ -127,6 +133,8 @@ export class PositionManager {
       }
 
       model.address = null;
+      model.mint = null;
+      model.strategy = null;
 
       await model.save();
 

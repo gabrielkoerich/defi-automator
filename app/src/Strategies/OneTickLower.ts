@@ -13,7 +13,10 @@ export class OneTickLower implements Strategy {
 
   public inputToken: string = 'tokenMintB';
 
-  getInitTicks(whirlpool: WhirlpoolData): {
+  getInitTicks(
+    whirlpool: WhirlpoolData,
+    config?: any
+  ): {
     tickLowerIndex: number;
     tickUpperIndex: number;
   } {

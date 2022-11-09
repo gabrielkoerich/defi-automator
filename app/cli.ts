@@ -100,8 +100,7 @@ const runner = async (provider: AnchorProvider, config, args: string[]) => {
 
   if (!r?._idleTimeout) {
     db.connection.close();
-  } else {
-    console.log(util.inspect(r, { depth: null, colors: true }));
+    // console.log(util.inspect(r, { depth: null, colors: true }));
   }
 };
 

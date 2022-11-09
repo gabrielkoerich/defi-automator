@@ -31,7 +31,7 @@ const getJupiterTransaction = async (route, userPublicKey) =>
   ).data;
 
 export const swapCollectedTokens = async (manager: PositionManager) => {
-  const model = await manager.getModel();
+  const model = await manager.getModel(true);
 
   if (!model.address) {
     console.log('No position address.');

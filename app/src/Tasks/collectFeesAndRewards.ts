@@ -30,7 +30,7 @@ const getTickArrays = (whirlpool: WhirlpoolData, position: PositionData) => {
 };
 
 export const collectFeesAndRewards = async (manager: PositionManager) => {
-  const model = await manager.getModel();
+  const model = await manager.getModel(true);
 
   if (!model.address) {
     console.log('No position address.');

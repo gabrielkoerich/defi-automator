@@ -20,7 +20,10 @@ export interface Strategy {
   /**
    * Get the ticks to open a position.
    */
-  getInitTicks: (whirlpool: WhirlpoolData) => {
+  getInitTicks: (
+    whirlpool: WhirlpoolData,
+    config?: any
+  ) => {
     tickLowerIndex: number;
     tickUpperIndex: number;
   };

@@ -13,7 +13,10 @@ export class OneTickUpper implements Strategy {
 
   public inputToken: string = 'tokenMintA';
 
-  getInitTicks(whirlpool: WhirlpoolData): {
+  getInitTicks(
+    whirlpool: WhirlpoolData,
+    config?: any
+  ): {
     tickLowerIndex: number;
     tickUpperIndex: number;
   } {
@@ -30,8 +33,10 @@ export class OneTickUpper implements Strategy {
             whirlpool.tickSpacing
           );
 
+    const ticks = config.ticks || 35;
+
     const tickUpperIndex = TickUtil.getNextInitializableTickIndex(
-      tickLowerIndex + 35 * whirlpool.tickSpacing,
+      tickLowerIndex + ticks * whirlpool.tickSpacing,
       whirlpool.tickSpacing
     );
 
